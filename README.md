@@ -386,8 +386,6 @@ test/                     # Test configuration
 docker/                   # Docker configuration
 └── dynamodb/            # DynamoDB Local data
 
-.github/workflows/        # CI/CD pipeline
-└── ci-cd.yml            # GitHub Actions workflow
 ```
 
 ## 🔄 Development Workflow
