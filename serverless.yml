@@ -1,0 +1,191 @@
+service: thryv-backend-nestjs
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${env:AWS_REGION, 'us-east-1'}
+  memorySize: 512
+  timeout: 30
+  logRetentionInDays: 14
+  environment:
+    NODE_ENV: ${env:NODE_ENV, 'production'}
+    DATABASE_URL: ${env:DATABASE_URL}
+    DYNAMODB_REGION: ${env:DYNAMODB_REGION, 'us-east-1'}
+    DYNAMODB_TABLE_COMPANY: ${env:DYNAMODB_TABLE_COMPANY}
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+    AUTH0_DOMAIN: ${env:AUTH0_DOMAIN}
+    AUTH0_AUDIENCE: ${env:AUTH0_AUDIENCE}
+    AUTH0_JWKS_URI: ${env:AUTH0_JWKS_URI}
+    JWT_ISSUER: ${env:JWT_ISSUER}
+    JWT_AUDIENCE: ${env:JWT_AUDIENCE}
+    DD_API_KEY: ${env:DD_API_KEY}
+    DD_SERVICE: ${env:DD_SERVICE, 'thryv-backend'}
+    DD_ENV: ${env:DD_ENV, '${self:provider.stage}'}
+    DD_VERSION: ${env:DD_VERSION, '1.0.0'}
+    DD_TRACE_ENABLED: ${env:DD_TRACE_ENABLED, 'true'}
+    CUBE_API_URL: ${env:CUBE_API_URL}
+    CUBE_API_TOKEN: ${env:CUBE_API_TOKEN}
+    LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchGetItem
+            - dynamodb:BatchWriteItem
+          Resource:
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_TABLE_COMPANY}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${env:DYNAMODB_TABLE_COMPANY}/index/*"
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - rds-data:BatchExecuteStatement
+            - rds-data:BeginTransaction
+            - rds-data:CommitTransaction
+            - rds-data:ExecuteStatement
+            - rds-data:RollbackTransaction
+          Resource: "*"
+
+plugins:
+  - serverless-esbuild
+  - serverless-offline
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: true
+    exclude:
+      - aws-sdk
+    target: node18
+    define:
+      'require.resolve': undefined
+    platform: node
+    concurrency: 10
+  serverless-offline:
+    httpPort: 3000
+    lambdaPort: 3002
+    host: 0.0.0.0
+
+functions:
+  # Main API function - handles all HTTP requests
+  api:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+          cors:
+            origin: ${env:CORS_ORIGIN, '*'}
+            headers: '*'
+            allowCredentials: true
+      - http:
+          method: ANY
+          path: /{proxy+}
+          cors:
+            origin: ${env:CORS_ORIGIN, '*'}
+            headers: '*'
+            allowCredentials: true
+    environment:
+      AWS_CLOUDWATCH_LOG_GROUP: !Ref ApiLogGroup
+      AWS_CLOUDWATCH_LOG_STREAM: ${self:provider.stage}-api
+
+  # Separate function for reports (can be scaled independently)
+  reports:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          method: GET
+          path: /reports/{proxy+}
+          cors:
+            origin: ${env:CORS_ORIGIN, '*'}
+            headers: '*'
+            allowCredentials: true
+    memorySize: 1024
+    timeout: 60
+    environment:
+      AWS_CLOUDWATCH_LOG_GROUP: !Ref ReportsLogGroup
+      AWS_CLOUDWATCH_LOG_STREAM: ${self:provider.stage}-reports
+
+resources:
+  Resources:
+    # CloudWatch Log Groups
+    ApiLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/lambda/thryv-backend-${self:provider.stage}-api
+        RetentionInDays: 14
+
+    ReportsLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/lambda/thryv-backend-${self:provider.stage}-reports
+        RetentionInDays: 14
+
+    # DynamoDB Table for Companies
+    CompanyTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${env:DYNAMODB_TABLE_COMPANY}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: identification
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: identification-index
+            KeySchema:
+              - AttributeName: identification
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        SSESpecification:
+          SSEEnabled: true
+        Tags:
+          - Key: Environment
+            Value: ${self:provider.stage}
+          - Key: Service
+            Value: thryv-backend
+
+    # VPC Configuration (uncomment if needed)
+    # VPC:
+    #   Type: AWS::EC2::VPC
+    #   Properties:
+    #     CidrBlock: 10.0.0.0/16
+    #     EnableDnsHostnames: true
+    #     EnableDnsSupport: true
+
+  Outputs:
+    ApiUrl:
+      Description: "API Gateway endpoint URL"
+      Value: !Sub "https://${RestApiApigwExecutionRole}.execute-api.${self:provider.region}.amazonaws.com/${self:provider.stage}"
+
+package:
+  individually: true
+  exclude:
+    - ./**
+  include:
+    - dist/**
+    - node_modules/**
