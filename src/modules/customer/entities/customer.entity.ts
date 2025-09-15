@@ -54,7 +54,7 @@ export class Customer {
 
   @ApiProperty({ description: 'Soft delete timestamp', required: false })
   @DeleteDateColumn({ type: 'timestamptz', nullable: true })
-  deletedAt?: Date;
+  deletedAt: Date | null;
 
   // Domain validation methods
   validateIdentification(): void {
@@ -90,7 +90,7 @@ export class Customer {
   }
 
   restore(): void {
-    this.deletedAt = undefined;
+    this.deletedAt = null;
     this.status = CustomerStatus.ACTIVE;
   }
 }

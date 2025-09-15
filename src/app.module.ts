@@ -7,6 +7,7 @@ import { CustomerModule } from './modules/customer/customer.module';
 import { CompanyModule } from './modules/company/company.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { AuthModule } from './common/auth/auth.module';
+import { AuthTokenModule } from './modules/auth-token/auth-token.module';
 import { DatabaseConfig } from './config/database.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -33,6 +34,7 @@ import { AppService } from './app.service';
     // Application modules
     CommonModule,
     AuthModule,
+    AuthTokenModule,
     CustomerModule,
     CompanyModule,
     ReportsModule,

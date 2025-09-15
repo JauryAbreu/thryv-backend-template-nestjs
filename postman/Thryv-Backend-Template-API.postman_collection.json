@@ -1,0 +1,586 @@
+{
+	"info": {
+		"_postman_id": "2bf1e40e-8655-4338-88e7-d3c2ecc159ae",
+		"name": "Thryv Backend API",
+		"description": "Collection for Thryv Backend Template - NestJS API endpoints with Auth0 authentication",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47936888",
+		"_collection_link": "https://jauryabreu.postman.co/workspace/Jaury-Abreu's-Workspace~b651e5b3-28e6-41da-8601-cd8335f93fbe/collection/47936888-2bf1e40e-8655-4338-88e7-d3c2ecc159ae?action=share&source=collection_link&creator=47936888"
+	},
+	"item": [
+		{
+			"name": "Health & Status",
+			"item": [
+				{
+					"name": "Basic Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Detailed Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth Token",
+			"item": [
+				{
+					"name": "Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"if (jsonData.access_token) {",
+									"    pm.collectionVariables.set(\"authorization_token\", jsonData.access_token);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/auth/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customers (PostgreSQL)",
+			"item": [
+				{
+					"name": "Create Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identification\": \"40223938206\",\n  \"name\": \"Jaury\",\n  \"lastname\": \"Abreu\",\n  \"dateBorn\": \"1994-10-07\",\n  \"gender\": \"male\",\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/customers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers?page=1&limit=10&status=active",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (optional, default: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page (optional, default: 10)"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter by status: active, pending, inactive (optional)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer by ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{base_url}}/customers/{{customerId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"{{customerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer by Identification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/identification/{{identification}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"identification",
+								"{{identification}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Customer",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identification\": \"40223938206\",\n  \"name\": \"Jaury Nicolas\",\n  \"lastname\": \"Abreu de Leon\",\n  \"dateBorn\": \"1994-10-07\",\n  \"gender\": \"male\",\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/customers/{{customerId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"{{customerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Customer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/{{customerId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"{{customerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Restore Customer",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/{{customerId}}/restore",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers",
+								"{{customerId}}",
+								"restore"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Companies (DynamoDB)",
+			"item": [
+				{
+					"name": "Create Company",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identification\": \"98765432109\",\n  \"name\": \"Acme Corp\",\n  \"alias\": \"Acme Corporation\",\n  \"address\": \"123 Business Ave, City, State 12345\",\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/companies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Companies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies?page=1&limit=10&status=active",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (optional, default: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page (optional, default: 10)"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter by status: active, pending, inactive (optional)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/{{companyId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"{{companyId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company by Identification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/identification/{{identification}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"identification",
+								"{{identification}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Company",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Acme Corporation Updated\",\n  \"alias\": \"Acme Corp Ltd\",\n  \"address\": \"456 New Business Blvd, City, State 54321\",\n  \"status\": \"pending\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/companies/{{companyId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"{{companyId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Company",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/{{companyId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"{{companyId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Restore Company",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/{{companyId}}/restore",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"{{companyId}}",
+								"restore"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reports & Analytics",
+			"item": [
+				{
+					"name": "Customer Analytics Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports/customers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports",
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Company Analytics Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports/companies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports",
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Combined Analytics Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports/dashboard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports",
+								"dashboard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reports Service Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports",
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authorization_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set common headers",
+					"pm.request.headers.add({",
+					"    key: 'User-Agent',",
+					"    value: 'Postman/Thryv-Backend-API'",
+					"});",
+					"",
+					"// Log request details for debugging",
+					"console.log('Request URL:', pm.request.url.toString());",
+					"console.log('Request Method:', pm.request.method);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Common response tests",
+					"pm.test('Response status code is valid', function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204, 400, 401, 403, 404, 422, 500]);",
+					"});",
+					"",
+					"pm.test('Response time is less than 5000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"pm.test('Response has proper content type', function () {",
+					"    if (pm.response.headers.has('Content-Type')) {",
+					"        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"    }",
+					"});",
+					"",
+					"// Log response for debugging",
+					"console.log('Response Status:', pm.response.status);",
+					"console.log('Response Time:', pm.response.responseTime + 'ms');"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "uthorization_token",
+			"value": ""
+		},
+		{
+			"key": "authorization_token",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
