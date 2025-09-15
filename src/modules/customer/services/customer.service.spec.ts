@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { Customer, CustomerGender, CustomerStatus } from '../entities/customer.entity';
 import { Repository } from 'typeorm';
@@ -295,7 +296,7 @@ describe('CustomerService', () => {
       // Mock Customer.prototype.validateIdentification to throw error
       const validateIdentificationSpy = jest.spyOn(Customer.prototype, 'validateIdentification')
         .mockImplementation(() => {
-          throw new Error('Identification is required');
+          throw new BadRequestException('Identification is required');
         });
 
       const updateDto = {

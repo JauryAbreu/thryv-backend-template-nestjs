@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CompanyRepository } from '../repositories/company.repository';
 import { CompanyEntity, CompanyStatus } from '../entities/company.entity';
 import { CreateCompanyDto, UpdateCompanyDto } from '../dto/company.dto';
@@ -22,7 +22,7 @@ export class CompanyService {
   async findOne(id: string): Promise<CompanyEntity> {
     const company = await this.companyRepository.findOne(id);
     if (!company) {
-      throw new Error('Company not found');
+      throw new NotFoundException('Company not found');
     }
     return company;
   }
@@ -30,7 +30,7 @@ export class CompanyService {
   async findByIdentification(identification: string): Promise<CompanyEntity> {
     const company = await this.companyRepository.findByIdentification(identification);
     if (!company) {
-      throw new Error('Company not found');
+      throw new NotFoundException('Company not found');
     }
     return company;
   }
@@ -38,7 +38,7 @@ export class CompanyService {
   async update(id: string, updateCompanyDto: UpdateCompanyDto): Promise<CompanyEntity> {
     const company = await this.companyRepository.update(id, updateCompanyDto);
     if (!company) {
-      throw new Error('Company not found');
+      throw new NotFoundException('Company not found');
     }
     return company;
   }
@@ -46,14 +46,14 @@ export class CompanyService {
   async softDelete(id: string): Promise<void> {
     const success = await this.companyRepository.softDelete(id);
     if (!success) {
-      throw new Error('Company not found');
+      throw new NotFoundException('Company not found');
     }
   }
 
   async restore(id: string): Promise<CompanyEntity> {
     const company = await this.companyRepository.restore(id);
     if (!company) {
-      throw new Error('Company not found');
+      throw new NotFoundException('Company not found');
     }
     return company;
   }

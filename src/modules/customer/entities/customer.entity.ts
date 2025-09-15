@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { BadRequestException } from '@nestjs/common';
 
 export enum CustomerGender {
   MALE = 'male',
@@ -36,7 +37,7 @@ export class Customer {
   dateBorn: Date;
 
   @ApiProperty({ description: 'Customer gender', enum: CustomerGender })
-  @Column({ type: 'enum', enum: CustomerGender })
+  @Column({ type: 'enum', enum: CustomerGender, nullable: true })
   gender: CustomerGender;
 
   @ApiProperty({ description: 'Customer status', enum: CustomerStatus })
@@ -58,28 +59,28 @@ export class Customer {
   // Domain validation methods
   validateIdentification(): void {
     if (!this.identification || this.identification.length === 0) {
-      throw new Error('Identification is required');
+      throw new BadRequestException('Identification is required');
     }
     if (this.identification.length > 25) {
-      throw new Error('Identification must not exceed 25 characters');
+      throw new BadRequestException('Identification must not exceed 25 characters');
     }
   }
 
   validateName(): void {
     if (!this.name || this.name.trim().length === 0) {
-      throw new Error('Name is required');
+      throw new BadRequestException('Name is required');
     }
     if (this.name.length > 50) {
-      throw new Error('Name must not exceed 50 characters');
+      throw new BadRequestException('Name must not exceed 50 characters');
     }
   }
 
   validateLastname(): void {
     if (!this.lastname || this.lastname.trim().length === 0) {
-      throw new Error('Lastname is required');
+      throw new BadRequestException('Lastname is required');
     }
     if (this.lastname.length > 50) {
-      throw new Error('Lastname must not exceed 50 characters');
+      throw new BadRequestException('Lastname must not exceed 50 characters');
     }
   }
 

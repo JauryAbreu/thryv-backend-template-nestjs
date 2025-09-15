@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { BadRequestException } from '@nestjs/common';
 
 export enum CompanyStatus {
   ACTIVE = 'active',
@@ -61,37 +62,37 @@ export class CompanyEntity implements Company {
   // Domain validation methods
   validateIdentification(): void {
     if (!this.identification || this.identification.length === 0) {
-      throw new Error('Identification is required');
+      throw new BadRequestException('Identification is required');
     }
     if (this.identification.length > 25) {
-      throw new Error('Identification must not exceed 25 characters');
+      throw new BadRequestException('Identification must not exceed 25 characters');
     }
   }
 
   validateName(): void {
     if (!this.name || this.name.trim().length === 0) {
-      throw new Error('Name is required');
+      throw new BadRequestException('Name is required');
     }
     if (this.name.length > 50) {
-      throw new Error('Name must not exceed 50 characters');
+      throw new BadRequestException('Name must not exceed 50 characters');
     }
   }
 
   validateAlias(): void {
     if (!this.alias || this.alias.trim().length === 0) {
-      throw new Error('Alias is required');
+      throw new BadRequestException('Alias is required');
     }
     if (this.alias.length > 100) {
-      throw new Error('Alias must not exceed 100 characters');
+      throw new BadRequestException('Alias must not exceed 100 characters');
     }
   }
 
   validateAddress(): void {
     if (!this.address || this.address.trim().length === 0) {
-      throw new Error('Address is required');
+      throw new BadRequestException('Address is required');
     }
     if (this.address.length > 250) {
-      throw new Error('Address must not exceed 250 characters');
+      throw new BadRequestException('Address must not exceed 250 characters');
     }
   }
 

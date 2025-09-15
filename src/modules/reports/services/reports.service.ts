@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { CustomerService } from '../../customer/services/customer.service';
 import { CompanyService } from '../../company/services/company.service';
 import axios from 'axios';
@@ -143,7 +143,7 @@ export class ReportsService {
     );
 
     if (response.status !== 200) {
-      throw new Error(`Cube API returned ${response.status}: ${response.statusText}`);
+      throw new ServiceUnavailableException(`Cube API returned ${response.status}: ${response.statusText}`);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import { Customer, CustomerStatus } from '../entities/customer.entity';
@@ -62,7 +62,7 @@ export class CustomerService {
     });
     
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new NotFoundException('Customer not found');
     }
     
     return customer;
@@ -74,7 +74,7 @@ export class CustomerService {
     });
     
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new NotFoundException('Customer not found');
     }
     
     return customer;
@@ -121,7 +121,7 @@ export class CustomerService {
     });
     
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new NotFoundException('Customer not found');
     }
     
     customer.restore();
